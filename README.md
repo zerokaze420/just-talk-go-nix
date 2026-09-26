@@ -93,6 +93,48 @@ Windows 安装到 `%LOCALAPPDATA%\Programs\Just Talk\just-talk.exe`：
 # 如果安装目录尚未在 PATH 中，按命令输出提示添加即可。
 ```
 
+### Nix / NixOS
+
+本仓库提供 flake package、overlay、NixOS module 和 Home Manager module：
+
+```bash
+nix run github:whoamihappyhacking/just-talk-go
+nix build github:whoamihappyhacking/just-talk-go
+```
+
+NixOS：
+
+```nix
+{
+  inputs.just-talk.url = "github:whoamihappyhacking/just-talk-go";
+
+  outputs = { nixpkgs, just-talk, ... }: {
+    nixosConfigurations.host = nixpkgs.lib.nixosSystem {
+      modules = [
+        just-talk.nixosModules.default
+        { programs.just-talk.enable = true; }
+      ];
+    };
+  };
+}
+```
+
+Home Manager：
+
+```nix
+{
+  imports = [ inputs.just-talk.homeManagerModules.default ];
+
+  programs.just-talk = {
+    enable = true;
+    autoStart = true;
+    extraArgs = [ "--no-tui" "--backend" "wayland" ];
+  };
+}
+```
+
+Wayland 全局热键需要当前用户拥有 `/dev/input/event*` 读取权限，自动上屏的 uinput 回退需要 `/dev/uinput` 权限。
+
 ## Release 下载
 
 GitHub Release 提供以下预编译归档：

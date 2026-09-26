@@ -93,6 +93,48 @@ Install on Windows to `%LOCALAPPDATA%\Programs\Just Talk\just-talk.exe`:
 # If the directory is not already in PATH, follow the note printed by the command.
 ```
 
+### Nix / NixOS
+
+This repository provides a flake package, overlay, NixOS module, and Home Manager module:
+
+```bash
+nix run github:whoamihappyhacking/just-talk-go
+nix build github:whoamihappyhacking/just-talk-go
+```
+
+NixOS:
+
+```nix
+{
+  inputs.just-talk.url = "github:whoamihappyhacking/just-talk-go";
+
+  outputs = { nixpkgs, just-talk, ... }: {
+    nixosConfigurations.host = nixpkgs.lib.nixosSystem {
+      modules = [
+        just-talk.nixosModules.default
+        { programs.just-talk.enable = true; }
+      ];
+    };
+  };
+}
+```
+
+Home Manager:
+
+```nix
+{
+  imports = [ inputs.just-talk.homeManagerModules.default ];
+
+  programs.just-talk = {
+    enable = true;
+    autoStart = true;
+    extraArgs = [ "--no-tui" "--backend" "wayland" ];
+  };
+}
+```
+
+Wayland global hotkeys require the current user to have read access to `/dev/input/event*`. The uinput fallback for auto-submit requires access to `/dev/uinput`.
+
 ## Release Downloads
 
 GitHub Releases provide prebuilt archives for:
